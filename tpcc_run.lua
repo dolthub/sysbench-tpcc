@@ -41,8 +41,8 @@ function new_order()
 
     local table_num = sysbench.rand.uniform(1, sysbench.opt.tables)
     local w_id = sysbench.rand.uniform(1, sysbench.opt.scale)
-    local d_id = sysbench.rand.uniform(1, DIST_PER_WARE)
-    local c_id = NURand(1023, 1, CUST_PER_DIST)
+    local d_id = sysbench.rand.uniform(1, sysbench.opt.districts)
+    local c_id = NURand(1023, 1, sysbench.opt.customers)
 
     local ol_cnt = sysbench.rand.uniform(5, 15);
     local rbk = sysbench.rand.uniform(1, 100);
@@ -53,7 +53,7 @@ function new_order()
 
     for i = 1, ol_cnt
     do
-        itemid[i] = NURand(8191, 1, MAXITEMS)
+        itemid[i] = NURand(8191, 1, sysbench.opt.items)
         if ((i == ol_cnt - 1) and (rbk == 1))
 	then
             itemid[i] = -1
@@ -85,9 +85,8 @@ function new_order()
   local w_tax
 
   c_discount, c_last, c_credit, w_tax = con:query_row(([[SELECT c_discount, c_last, c_credit, w_tax 
-                                                           FROM customer%d, warehouse%d
+                                                           FROM customer%d join warehouse%d on c_w_id = w_id 
                                                           WHERE w_id = %d 
-                                                            AND c_w_id = w_id 
                                                             AND c_d_id = %d 
                                                             AND c_id = %d]]):
                                                          format(table_num, table_num, w_id, d_id, c_id))
@@ -228,8 +227,8 @@ function payment()
 
     local table_num = sysbench.rand.uniform(1, sysbench.opt.tables)
     local w_id = sysbench.rand.uniform(1, sysbench.opt.scale)
-    local d_id = sysbench.rand.uniform(1, DIST_PER_WARE)
-    local c_id = NURand(1023, 1, CUST_PER_DIST)
+    local d_id = sysbench.rand.uniform(1, sysbench.opt.districts)
+    local c_id = NURand(1023, 1, sysbench.opt.customers)
     local h_amount = sysbench.rand.uniform(1,5000)
     local byname
     local c_w_id
@@ -247,7 +246,7 @@ function payment()
         c_d_id = d_id
     else
         c_w_id = other_ware(w_id)
-        c_d_id = sysbench.rand.uniform(1, DIST_PER_WARE)
+        c_d_id = sysbench.rand.uniform(1, sysbench.opt.districts)
     end
 
 --  UPDATE warehouse SET w_ytd = w_ytd + :h_amount
@@ -413,8 +412,8 @@ function orderstatus()
 
     local table_num = sysbench.rand.uniform(1, sysbench.opt.tables)
     local w_id = sysbench.rand.uniform(1, sysbench.opt.scale)
-    local d_id = sysbench.rand.uniform(1, DIST_PER_WARE)
-    local c_id = NURand(1023, 1, CUST_PER_DIST)
+    local d_id = sysbench.rand.uniform(1, sysbench.opt.districts)
+    local c_id = NURand(1023, 1, sysbench.opt.customers)
     local byname
     local c_last = Lastname(NURand(255,0,999))
 
@@ -553,7 +552,7 @@ function delivery()
     local o_carrier_id = sysbench.rand.uniform(1, 10)
 
     con:query("BEGIN")
-    for  d_id = 1, DIST_PER_WARE do
+    for  d_id = 1, sysbench.opt.districts do
 
 --	SELECT COALESCE(MIN(no_o_id),0) INTO :no_o_id
 --		                FROM new_orders
@@ -656,7 +655,7 @@ end
 function stocklevel()
     local table_num = sysbench.rand.uniform(1, sysbench.opt.tables)
     local w_id = sysbench.rand.uniform(1, sysbench.opt.scale)
-    local d_id = sysbench.rand.uniform(1, DIST_PER_WARE)
+    local d_id = sysbench.rand.uniform(1, sysbench.opt.districts)
     local level = sysbench.rand.uniform(10, 20)
 
     con:query("BEGIN")
@@ -688,13 +687,12 @@ function stocklevel()
 --]]
 
     rs = con:query(([[SELECT COUNT(DISTINCT (s_i_id))
-                        FROM order_line%d, stock%d
+                        FROM order_line%d join stock%d on s_i_id=ol_i_id 
                        WHERE ol_w_id = %d 
                          AND ol_d_id = %d
                          AND ol_o_id < %d 
                          AND ol_o_id >= %d
                          AND s_w_id= %d
-                         AND s_i_id=ol_i_id 
                          AND s_quantity < %d ]])
 		:format(table_num, table_num, w_id, d_id, d_next_o_id, d_next_o_id - 20, w_id, level ))
 
@@ -750,7 +748,7 @@ function purge()
     for i = 1, 10 do
     local table_num = sysbench.rand.uniform(1, sysbench.opt.tables)
     local w_id = sysbench.rand.uniform(1, sysbench.opt.scale)
-    local d_id = sysbench.rand.uniform(1, DIST_PER_WARE)
+    local d_id = sysbench.rand.uniform(1, sysbench.opt.districts)
 
     con:query("BEGIN")
 
