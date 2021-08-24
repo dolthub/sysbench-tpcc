@@ -337,7 +337,7 @@ function create_tables(drv, con, table_num)
    con:query(query)
 
    con:bulk_insert_init("INSERT INTO item" .. i .." (i_id, i_im_id, i_name, i_price, i_data) values")
-   for j = 1 , sysbench.opts.items do
+   for j = 1 , sysbench.opt.items do
       local i_im_id = sysbench.rand.uniform(1,10000)
       local i_price = sysbench.rand.uniform_double()*100+1
       -- i_name is not generated as prescribed by standard, but we want to provide a better compression
