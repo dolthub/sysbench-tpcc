@@ -113,6 +113,9 @@ function new_order()
                   SET d_next_o_id = %d
                 WHERE d_id = %d AND d_w_id= %d]]):format(table_num, d_next_o_id + 1, d_id, w_id))
 
+   -- Dolt doesn't support `for update` yet, so we need to fuzz this identifier, sorry
+   d_next_o_id = d_next_o_id + sysbench.rand.uniform(1,10000)
+
    --INSERT INTO orders (o_id, o_d_id, o_w_id, o_c_id,
    --                                    o_entry_d, o_ol_cnt, o_all_local)
    --                VALUES(:o_id, :d_id, :w_id, :c_id, 

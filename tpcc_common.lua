@@ -108,8 +108,8 @@ function cmd_prepare()
 
    -- make sure all tables are created before we load data
 
-   print("Waiting on tables 30 sec\n")
-   sleep(30)
+   --   print("Waiting on tables 5 sec\n")
+   --   sleep(5)
 
    for i = sysbench.tid % sysbench.opt.threads + 1, sysbench.opt.scale,
    sysbench.opt.threads do
