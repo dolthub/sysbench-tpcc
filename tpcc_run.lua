@@ -90,12 +90,17 @@ function new_order()
   local w_tax
 
   c_discount, c_last, c_credit, w_tax = con:query_row(([[SELECT c_discount, c_last, c_credit, w_tax 
-                                                           FROM customer%d, warehouse%d
-                                                          WHERE w_id = %d 
-                                                            AND c_w_id = w_id 
-                                                            AND c_d_id = %d 
-                                                            AND c_id = %d]]):
-                                                         format(table_num, table_num, w_id, d_id, c_id))
+                                                           FROM (
+                                                             SELECT c_w_id, c_discount, c_last, c_credit
+                                                             FROM customer%d
+                                                             WHERE c_w_id = %d
+                                                               AND c_d_id = %d
+                                                               AND c_id = %d
+                                                             ) sub
+                                                           JOIN warehouse%d
+                                                           ON sub.c_w_id = w_id
+                                                          WHERE w_id = %d]]):
+                                                         format(table_num, w_id, d_id, c_id, table_num, w_id))
 
 --        SELECT d_next_o_id, d_tax INTO :d_next_o_id, :d_tax
 --                FROM district
